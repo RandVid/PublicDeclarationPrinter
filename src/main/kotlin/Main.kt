@@ -1,3 +1,10 @@
+// https://github.com/RandVid/PublicDeclarationPrinter
+/**
+ * I thought that the sample usage is too difficult for a person to read
+ * So I have decided to add several features such as
+ * printing file names and their local path
+ */
+
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.psi.*
@@ -28,6 +35,10 @@ fun main(args: Array<String>) {
     proceedKotlinFiles(sourceDir, environment)
 }
 
+/**
+ * processes all Kotlin files in the given directory,
+ * printing their public declarations
+ */
 private fun proceedKotlinFiles(
     directory: File,
     environment: KotlinCoreEnvironment
@@ -44,6 +55,11 @@ private fun proceedKotlinFiles(
     }
 }
 
+
+/**
+ * isPublicDeclaration
+ * Accepts the declaration as a parameter, and return whether it is public
+ */
 private fun isPublicDeclaration(declaration: KtDeclaration): Boolean {
     if (declaration.hasModifier(KtTokens.PRIVATE_KEYWORD) ||
         declaration.hasModifier(KtTokens.INTERNAL_KEYWORD) ||
@@ -55,6 +71,10 @@ private fun isPublicDeclaration(declaration: KtDeclaration): Boolean {
     return parent == null || isPublicDeclaration(parent)
 }
 
+/**
+ * Prints all public declarations in the given list, handling different
+ * declaration types (functions, classes, properties, etc.) with proper formatting.
+ */
 private fun printDeclarations(declarations: List<KtDeclaration>, indent: String = "") {
     for (declaration in declarations) {
         if (!isPublicDeclaration(declaration)) continue
@@ -62,12 +82,17 @@ private fun printDeclarations(declarations: List<KtDeclaration>, indent: String 
             is KtNamedFunction -> {
                 val name = declaration.name ?: continue
                 val receiver = declaration.receiverTypeReference?.text?.plus(".") ?: ""
+                val typeParams = if (declaration.typeParameters.isNotEmpty()) {
+                    declaration.typeParameters.joinToString(", ", "<", ">") { param ->
+                        param.name + (param.extendsBound?.text?.let { " : $it" } ?: "")
+                    }
+                } else ""
                 val parameters = declaration.valueParameters
                     .filter { it.name != null } // filter the anonymous parameters
                     .joinToString(", ") { param ->
                         "${param.name}: ${param.typeReference?.text ?: "Any"}"
                     }
-                println("${indent}fun ${receiver}${name}($parameters)")
+                println("${indent}fun ${receiver}${name}${typeParams}($parameters)")
             }
 
             is KtClass -> {
