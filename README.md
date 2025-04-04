@@ -27,7 +27,7 @@ Download it from [releases](https://github.com/RandVid/PublicDeclarationPrinter/
 
 ## Usage
 ```
-java -jar ./kotlin-declaration-printer <source-directory>
+java -jar ./public-declaration-printer <source-directory>
 ```
 
 ### Example
